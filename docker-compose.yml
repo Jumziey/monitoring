@@ -1,0 +1,35 @@
+version: "3.2"
+
+networks:
+  av:
+
+volumes:
+  grafana-storage:
+
+services:
+  prometheus:
+    image: prom/prometheus
+    networks:
+      - av
+    ports:
+      - 9090:9090
+    restart: always
+    volumes:
+      - ./prometheus-config:/etc/prometheus
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+
+  grafana:
+    image: grafana/grafana
+    environment:
+      GF_INSTALL_PLUGINS: "grafana-clock-panel,grafana-simple-json-datasource"
+    restart: always
+    volumes:
+      - grafana-storage:/var/lib/grafana
+    networks:
+      - av
+    ports:
+      - 3000:3000
+    depends_on:
+      - prometheus
